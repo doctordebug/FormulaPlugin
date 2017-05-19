@@ -20,13 +20,11 @@ public class AnalyseAction extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
+        if(e.getProject() == null) return;
         FileEditorManager manager = FileEditorManager.getInstance(e.getProject());
         VirtualFile files[] = manager.getSelectedFiles();
         //Any files open?
-        if(files.length != 0)
-            System.out.println(files[0]);
-        //ist it a Java File//Class?
-        if(!files[0].getPath().toLowerCase().endsWith(".java"))
+        if(files.length == 0 || !files[0].getPath().toLowerCase().endsWith(".java"))
             return;
         //Setup Soot
         if(!SootEnviroment.setup(files[0])) throw new IllegalArgumentException("Sth. stupid happend");
