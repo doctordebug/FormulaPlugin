@@ -1,4 +1,5 @@
 import Models.ForLoop;
+import Utils.SootEnviroment;
 import soot.*;
 import soot.jimple.AssignStmt;
 import soot.jimple.DefinitionStmt;
@@ -25,7 +26,6 @@ public class ForAnalyser {
     public void analyse() {
        for (SootMethod m : toAnalyse.getMethods()) {
             Body sb = m.retrieveActiveBody();
-
             LoopNestTree loopNestTree = new LoopNestTree(sb);
             for (Loop loop : loopNestTree) {
                 if(loop.loopsForever() || !loop.hasSingleExit()) continue;

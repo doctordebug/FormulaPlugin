@@ -1,3 +1,5 @@
+import Utils.ClassVisitor;
+import Utils.SootEnviroment;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
@@ -36,10 +38,12 @@ public class AnalyseAction extends AnAction {
         ClassVisitor visitor = new ClassVisitor();
         ast.accept(visitor);
         Stack<String> stack = visitor.getClassNames();
+        SootEnviroment.activateConstantPropagation();
         while(!stack.empty()){
             SootClass c = Scene.v().loadClassAndSupport(stack.pop());
             Scene.v().loadNecessaryClasses();
             new ForAnalyser(c).analyse();
         }
+        SootEnviroment.disableConstantPropagation();
     }
 }
