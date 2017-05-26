@@ -14,22 +14,15 @@ import java.util.stream.Collectors;
  */
 public class ReachingDefinitions extends ForwardFlowAnalysis{
 
-    private BriefUnitGraph g;
-    private Map<Unit, Integer> labels ;
-    private Set<Integer> labSet;
+    private Map<Unit, Integer> UnitToLabels;
+    private Map<Integer, Unit> LabelsToUnit;
     private Map<Value, Set<Integer>> result = new HashMap<>();
+    private Map<Value, Unit> FirstOccurence = new HashMap<>();
 
     public ReachingDefinitions(BriefUnitGraph g){
         super(g);
         labelStatements(g);
         doAnalysis();
-        for(Unit key : labels.keySet()){
-            System.out.println(key +" < - > "+labels.get(key));
-        }
-        System.out.println("####################################");
-        for(Value key : result.keySet()){
-            System.out.println(key +" < - > "+result.get(key));
-        }
     }
 
     private void labelStatements(BriefUnitGraph g) {
@@ -37,13 +30,13 @@ public class ReachingDefinitions extends ForwardFlowAnalysis{
         Set<Unit> visited = new HashSet<>();
         Stack<Unit> toVisit = new Stack<>();
         toVisit.addAll(g.getHeads());
-        labels = new HashMap<Unit, Integer>(g.getHeads().size());
+        UnitToLabels = new HashMap<Unit, Integer>(g.getHeads().size());
         while(!toVisit.empty()) {
             Unit current = toVisit.pop();
             if(visited.contains(current)) continue;
             visited.add(current);
             toVisit.addAll(g.getSuccsOf(current));
-            labels.put(current, ++currentLabel);
+            UnitToLabels.put(current, ++currentLabel);
 
             for(Unit s : g.getSuccsOf(current)){
                 if(!visited.contains(s)) {
@@ -51,7 +44,7 @@ public class ReachingDefinitions extends ForwardFlowAnalysis{
                 }
             }
         }
-        labSet = labels.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toSet());
+        LabelsToUnit = UnitToLabels.entrySet().stream().collect(Collectors.toMap( e-> e.getValue(), e -> e.getKey()));
     }
 
     @Override
@@ -62,12 +55,14 @@ public class ReachingDefinitions extends ForwardFlowAnalysis{
         Unit u = (Unit) unit;
         if( !(u instanceof AssignStmt))return;
         Stmt s = (AssignStmt) u;
-        int label = labels.get(u);
+        int label = UnitToLabels.get(u);
         tMap.clear();
         tMap.putAll(sMap);
 
         for(ValueBox st : s.getDefBoxes()){
             Set<Integer> current = (sMap.get(st.getValue()) == null) ? new HashSet<>() : sMap.get(st.getValue());
+            if(current.isEmpty()) FirstOccurence.put(st.getValue(),u);
+
             current.add(label);
             tMap.put(st.getValue(),current);
         }
@@ -109,5 +104,21 @@ public class ReachingDefinitions extends ForwardFlowAnalysis{
         tMap.putAll(sMap);
         result = tMap;
         target = tMap;
+    }
+
+    public Map<Value, Set<Integer>> getResult() {
+        return result;
+    }
+
+    public Map<Unit, Integer> getUnitToLabels() {
+        return UnitToLabels;
+    }
+
+    public Map<Integer, Unit> getLabelsToUnit() {
+        return LabelsToUnit;
+    }
+
+    public Map<Value, Unit> getFirstOccurence() {
+        return FirstOccurence;
     }
 }

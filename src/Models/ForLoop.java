@@ -15,6 +15,7 @@ public class ForLoop {
     private List<Stmt> touchStmts = new ArrayList<>();
     private List<AssignStmt> assignStmts = new ArrayList<>();
     private List<Value> accuVariables = new ArrayList<>();
+    //value and max posibla vlaue for iterator
     private Map<Value, Value> iterators = new HashMap<>(); // why a set? e.g. for(int i = 0, a = 7; i < 10 && a < 80; i++, a++)
 
     @Override
