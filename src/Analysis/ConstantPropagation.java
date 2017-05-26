@@ -32,8 +32,6 @@ public class ConstantPropagation extends BodyTransformer {
         return instance == null ? instance = new ConstantPropagation() : instance;
     }
 
-    static String oldPath;
-
     //https://courses.cs.washington.edu/courses/cse501/01wi/project/sable-thesis.pdf
     @Override
     protected void internalTransform(Body b, String phaseName, Map options) {

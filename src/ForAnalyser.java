@@ -1,5 +1,6 @@
+import Analysis.ReachingDefinitions;
 import Models.ForLoop;
-import Utils.SootEnviroment;
+import Utils.Log;
 import soot.*;
 import soot.jimple.AssignStmt;
 import soot.jimple.DefinitionStmt;
@@ -7,9 +8,10 @@ import soot.jimple.IfStmt;
 import soot.jimple.Stmt;
 import soot.jimple.internal.*;
 import soot.jimple.toolkits.annotation.logic.Loop;
+import soot.toolkits.graph.BriefUnitGraph;
 import soot.toolkits.graph.LoopNestTree;
-
-import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -25,9 +27,10 @@ public class ForAnalyser {
 
     public void analyse() {
        for (SootMethod m : toAnalyse.getMethods()) {
-            Body sb = m.retrieveActiveBody();
-            LoopNestTree loopNestTree = new LoopNestTree(sb);
+           Body sb = m.retrieveActiveBody();
+           LoopNestTree loopNestTree = new LoopNestTree(sb);
             for (Loop loop : loopNestTree) {
+
                 if(loop.loopsForever() || !loop.hasSingleExit()) continue;
                 ForLoop fl = new ForLoop();
                 //Condition: first if stmt in loop is condition
@@ -41,9 +44,14 @@ public class ForAnalyser {
                 fl.setAccuVariables(fl.getAssignStmts().stream().map(DefinitionStmt::getLeftOp).distinct().collect(Collectors.toList()));
                 //find all stmts touching iterators
                 fl.setTouchStmts(fl.getAssignStmts().stream().filter(x -> fl.getIterators().keySet().contains(x.getLeftOp())).collect(Collectors.toList()));
-                System.out.println(fl);
+                calcFormula(fl, sb);
+                Log.i(fl);
             }
         }
+    }
+
+    private void calcFormula(ForLoop fl, Body sb) {
+       new ReachingDefinitions(new BriefUnitGraph(sb));
     }
 
     private boolean findIterator(ForLoop fl, JIfStmt condition) {

@@ -4,6 +4,7 @@ import Analysis.ConstantPropagation;
 import com.intellij.openapi.vfs.VirtualFile;
 import soot.PackManager;
 import soot.Transform;
+import soot.jimple.toolkits.annotation.defs.ReachingDefsTagger;
 import soot.options.Options;
 
 /**

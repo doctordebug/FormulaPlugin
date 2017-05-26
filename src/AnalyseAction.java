@@ -29,7 +29,7 @@ public class AnalyseAction extends AnAction {
         if(files.length == 0 || !files[0].getPath().toLowerCase().endsWith(".java"))
             return;
         //Setup Soot
-        if(!SootEnviroment.setup(files[0])) throw new IllegalArgumentException("Sth. stupid happend");
+        if(!SootEnviroment.setup(files[0])) throw new IllegalArgumentException("Sth. stupid happened");
         analyse(e);
     }
 
@@ -39,6 +39,8 @@ public class AnalyseAction extends AnAction {
         ast.accept(visitor);
         Stack<String> stack = visitor.getClassNames();
         SootEnviroment.activateConstantPropagation();
+
+
         while(!stack.empty()){
             SootClass c = Scene.v().loadClassAndSupport(stack.pop());
             Scene.v().loadNecessaryClasses();
