@@ -1,12 +1,14 @@
 package Models;
 
 import Analysis.ReachingDefinitions;
-import Utils.Log;
 import soot.Local;
 import soot.Unit;
 import soot.Value;
 import soot.ValueBox;
+import soot.jimple.Constant;
+import soot.jimple.IntConstant;
 import soot.jimple.Stmt;
+import soot.jimple.internal.JimpleLocal;
 import soot.jimple.toolkits.annotation.logic.Loop;
 
 import java.util.*;
@@ -17,11 +19,13 @@ import java.util.stream.Collectors;
  */
 public class EquationTree {
 
-    private final Unit root;
+    private final Node root;
     private final ReachingDefinitions rd;
 
-    public EquationTree(Unit unit, ReachingDefinitions rd) {
-        this.root = unit;
+    private Set<Node> Nodes = new HashSet<>();
+
+    public EquationTree(Node root, ReachingDefinitions rd) {
+        this.root = root;
         this.rd = rd;
     }
 
@@ -30,34 +34,73 @@ public class EquationTree {
         Set<Integer> touchedAt = rd.getResult().get(accu);
         Map<Integer, Unit> unitsToLabel = rd.getLabelsToUnit();
         List<Unit> accuAssignedAt = touchedAt.stream().map(unitsToLabel::get).collect(Collectors.toList());
-        List<Unit> assignmentsOfAccuInLoop = accuAssignedAt.stream().filter(x -> statements.contains(x)).collect(Collectors.toList());
-        Log.i(assignmentsOfAccuInLoop);
-        EquationTree result = new EquationTree(assignmentsOfAccuInLoop.get(0), rd);
+        List<Unit> assignmentsOfAccuInLoop = accuAssignedAt.stream().filter(statements::contains).collect(Collectors.toList());
+        Node root = new Node<>();
+        root.setValue(assignmentsOfAccuInLoop.get(0));
+        for (ValueBox u: assignmentsOfAccuInLoop.get(0).getUseBoxes()) {
+            Node child = new Node();
+            child.setValue(u.getValue());
+            child.setParent(root);
+            root.addChild(child);
+        }
+        EquationTree result = new EquationTree(root, rd);
         result.resolveAssignment();
-        return null;
+        return result;
     }
 
     protected void resolveAssignment() {
-        Node rootNode = new Node<Unit>();
-        rootNode.setValue(root);
-        Stack<ValueBox> toVisit = new Stack<>();
-        toVisit.addAll(root.getUseBoxes());
-        Map<Value, Set<Integer>> labelsToUnit = rd.getResult();
-        Map<Integer, Unit> lzu = rd.getLabelsToUnit();
-        Set<ValueBox> visited = new HashSet<>();
+        Stack<Node> toVisit = new Stack<>();
+        Set<Object> visited = new HashSet<>();
+        Map<Value, Set<Integer>> unitsToLabel = rd.getResult();
+        Map<Integer, Unit> labelsToUnit = rd.getLabelsToUnit();
+        Node currentNode;
+        toVisit.addAll(root.getChildren());
         while(!toVisit.empty()){
-            ValueBox current = toVisit.pop();
-            if (visited.contains(current)) continue;
-            visited.add(current);
-            System.out.println( "+++" + current + "+++");
-            Set<Integer> temp = labelsToUnit.get(current.getValue());
-            if(temp == null) continue;
-            for(int key : temp){
-                toVisit.addAll(lzu.get(key).getUseBoxes());
+            currentNode = toVisit.pop();
+            Value val = (Value) currentNode.getValue();
+            if(unitsToLabel.get(val) == null || visited.contains(currentNode.getValue())) continue;
+            visited.add(currentNode.getValue());
+            for (int label: unitsToLabel.get(val)) {
+                Unit newChild = labelsToUnit.get(label);
+                for(ValueBox u : newChild.getUseBoxes()){
+                    Node n = new Node();
+                    n.setValue(u.getValue());
+                    n.setParent(currentNode);
+                    currentNode.addChild(n);
+                    toVisit.push(n);
+                }
             }
-
         }
-
-        System.out.println("exit");
     }
+
+    //Todo: write white label bfs in tree use stringbufffer
+    public String toReadableEquation(){
+        String Equi = "";
+        Stack<Node> toVisit = new Stack<>();
+        Set<Node> visited = new HashSet<>();
+        Node currentNode;
+        toVisit.push(root);
+        while (!toVisit.empty()){
+            currentNode = toVisit.pop();
+            if(visited.contains(currentNode)) continue;
+            visited.add(currentNode);
+            if(currentNode.hasChildren()){
+                  toVisit.addAll(currentNode.getChildren());
+            }else{
+                /*leafs*/
+                if(currentNode.getValue() instanceof JimpleLocal)
+                    Equi += ((JimpleLocal)currentNode.getValue()).getName()+" OP ";
+                if(currentNode.getValue() instanceof IntConstant)
+                    Equi += ((IntConstant)currentNode.getValue()).value+".0 OP ";
+           }
+        }
+        return "#>"+Equi;
+    }
+
+    @Override
+    public String toString() {
+        return root.toString();
+    }
+
+
 }

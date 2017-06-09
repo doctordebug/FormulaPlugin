@@ -9,19 +9,20 @@ import java.util.Set;
 public class Node<T> {
 
     private T value = null;
-    private Set<T> chiildren = new HashSet<T>();
+    private Set<Node<T>> children = new HashSet();
     private Node<T> parent = null;
+    private Object annotation = null;
 
     public void setValue(T value) {
         this.value = value;
     }
 
-    public void setChiildren(Set<T> chiildren) {
-        this.chiildren = chiildren;
+    public void setChildren(Set<Node<T>> children) {
+        this.children = children;
     }
 
-    public Set<T> getChiildren() {
-        return chiildren;
+    public Set<Node<T>> getChildren() {
+        return children;
     }
 
     public T getValue() {
@@ -34,5 +35,31 @@ public class Node<T> {
 
     public Node<T> getParent() {
         return parent;
+    }
+
+    public void addChild(Node childNode) {
+        this.children.add(childNode);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getValue()).append(":\n").append("-");
+        sb.append("L__>");
+        for (Node c : children)
+            sb.append(c.toString()).append(',');
+        return sb.toString();
+    }
+
+    public boolean hasChildren() {
+        return !children.isEmpty();
+    }
+
+    public Object getAnnotation() {
+        return annotation;
+    }
+
+    public void setAnnotation(Object annotation) {
+        this.annotation = annotation;
     }
 }

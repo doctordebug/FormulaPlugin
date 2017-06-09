@@ -16,7 +16,7 @@ public class Formula {
     @Override
     public String toString() {
         return
-                initialValue+"\n" + MaxIteratorValue+"\n" + IteratorStartsAt+"\n";
+                initialValue+"\n" + MaxIteratorValue+"\n" + IteratorStartsAt+"\n"+equation.toReadableEquation()+"\n";
     }
 
     public EquationTree getEquation() {

@@ -4,10 +4,13 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.impl.LoadTextUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import soot.Scene;
 import soot.SootClass;
+import soot.SootResolver;
+import soot.util.Chain;
 
 import java.util.Stack;
 
@@ -15,6 +18,7 @@ import java.util.Stack;
  * Created by olisa_000 on 18.05.17.
  */
 public class AnalyseAction extends AnAction {
+
 
     public AnalyseAction(){
         super("Analyse Action");
@@ -36,10 +40,10 @@ public class AnalyseAction extends AnAction {
     private void analyse(AnActionEvent e) {
         PsiFile ast = e.getData(LangDataKeys.PSI_FILE);
         ClassVisitor visitor = new ClassVisitor();
+        if (ast == null) throw new AssertionError("ast is null try again");
         ast.accept(visitor);
         Stack<String> stack = visitor.getClassNames();
         SootEnviroment.activateConstantPropagation();
-
 
         while(!stack.empty()){
             SootClass c = Scene.v().loadClassAndSupport(stack.pop());
