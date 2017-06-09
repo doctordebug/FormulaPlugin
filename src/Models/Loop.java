@@ -58,8 +58,36 @@ public class Loop {
         accuVars.remove(result.getIndexVariable());
         result.setAccumulationVariables(accuVars);
         //setCoIndex
-
+        Collection<Value> coIndex = findCoIndex(definedBeforeLoop, loop.getLoopStatements(), result.getIndexVariable());
+        result.setCoIndexVariables(coIndex);
+        //setTempVars
+        result.settempVariables(findTempVariables(definedBeforeLoop, loop.getLoopStatements()));
         return result;
+    }
+
+    private static List<Value> findTempVariables(List<Value> definedBeforeLoop, List<Stmt> loopStatements) {
+
+        List<AssignStmt> assignedInLoop = findLoopAssignStatements(loopStatements);
+        //defines itself new in loop
+        List<Value> valuesAssignedInLoop = assignedInLoop.stream().map(x -> x.getLeftOp()).filter(x -> !definedBeforeLoop.contains(x)).collect(Collectors.toList());
+        return valuesAssignedInLoop;
+    }
+
+    private static Collection<Value> findCoIndex(List<Value> definedBeforeLoop, List<Stmt> loopStatements, Value indexVariable) {
+        List<AssignStmt> assignedInLoop = findLoopAssignStatements(loopStatements);
+        //defines itself new in loop
+        List<Value> valuesAssignedInLoop = assignedInLoop.stream().map(x -> x.getLeftOp()).collect(Collectors.toList());
+        //lives before loop AND uses inside loop
+        List<Value> possibleCoIndex =  valuesAssignedInLoop.stream().filter(x -> definedBeforeLoop.contains(x)).collect(Collectors.toList());
+        //HasPath to index
+        List<ValueTree> varTrees = possibleCoIndex.stream().map(x -> new ValueTree(x, assignedInLoop)).collect(Collectors.toList());
+        HashSet<Value> hasPathToIndex = new HashSet<>();
+        for(ValueTree t : varTrees){
+            for(Value v : possibleCoIndex)
+                if (t.pathPathFromTo(v,indexVariable))
+                    hasPathToIndex.add(v);
+        }
+        return hasPathToIndex;
     }
 
     private static Collection<Value> findAccuVariables(List<Value> definedBeforeLoop, List<Stmt> loopStatements) {
@@ -217,5 +245,14 @@ public class Loop {
 
     public List<AssignStmt> getLoopAssignStatements() {
         return loopAssignStatements;
+    }
+
+    public void setCoIndexVariables(Collection<Value> coIndex) {
+        this.coIndexVariables = coIndex;
+    }
+
+
+    public void settempVariables(Collection<Value> tempVariables) {
+        this.tempVariables = tempVariables;
     }
 }

@@ -69,19 +69,39 @@ public class ValueTree {
     }
 
     public boolean refersItself(Value v){
-        int count = 0;
+        return pathPathFromTo(v,v);
+    }
+
+    public boolean pathPathFromTo(Value from, Value to) {
         Stack<Node> toVisit = new Stack<>();
         HashSet<Node> visited = new HashSet<>();
         toVisit.push(root);
+        Node<Value> start = null;
         while(!toVisit.empty()){
             Node<Value> current = toVisit.pop();
             if(visited.contains(current))
                 continue;
             visited.add(current);
-            if(current.getValue() == v) count++;
+            if(current.getValue() == from){
+                start = current;
+                break;}
             toVisit.addAll(current.getChildren());
         }
-        return count > 1;
+        toVisit.clear();
+        visited.clear();
+        if(start == null) return false;
+        toVisit.push(start);
+        while(!toVisit.empty()){
+            Node<Value> current = toVisit.pop();
+            if(visited.contains(current))
+                continue;
+            visited.add(current);
+            if(current.getValue() == to && current != start){
+                return  true;
+            }
+            toVisit.addAll(current.getChildren());
+        }
+        return false;
     }
 
     //TODO: use sb
@@ -106,4 +126,6 @@ public class ValueTree {
         }
         return result;
     }
+
+
 }
