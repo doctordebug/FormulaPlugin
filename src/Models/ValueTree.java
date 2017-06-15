@@ -8,18 +8,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Stack;
 
+
 /**
  * Created by olisa_000 on 09.06.17.
  */
 //TODO: build parentclass: tree
 public class ValueTree {
 
-    private Node<Value> root;
+    private Node root;
 
     public ValueTree(Value acc, List<AssignStmt> loopAssignStatements){
-        this.root = new Node<>();
+
+        root = new Node<>();
         root.setValue(acc);
         initTree(loopAssignStatements);
+
+
     }
 
     //TODO Refactor
@@ -27,7 +31,7 @@ public class ValueTree {
         HashSet<Value> visited = new HashSet();
         Stack<Node<Value>> toVisit = new Stack<>();
         Node<Value> newRoot = new Node<>();
-        AssignStmt lastAssignmentStmtOfRoot = loopAssignStatements.stream().filter(x -> x.getLeftOp() == this.root.getNumberValue()).reduce((a, b) -> b).get();
+        AssignStmt lastAssignmentStmtOfRoot = loopAssignStatements.stream().filter(x -> x.getLeftOp() == root.getNumberValue()).reduce((a, b) -> b).get();
         newRoot.setValue(lastAssignmentStmtOfRoot.getLeftOp());
         int maxIndex = loopAssignStatements.indexOf(lastAssignmentStmtOfRoot);
         toVisit.push(newRoot);
@@ -63,7 +67,8 @@ public class ValueTree {
                 toVisit.push(n1);
             }
         }
-        this.root = newRoot;
+        root = (newRoot);
+
     }
 
     public boolean refersItself(Value v){
@@ -126,7 +131,8 @@ public class ValueTree {
     }
 
 
-    public Node<Value> getRoot() {
+    public Node getRoot() {
         return root;
     }
 }
+

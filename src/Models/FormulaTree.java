@@ -1,12 +1,13 @@
 package Models;
 
+import soot.Local;
 import soot.Value;
-import soot.jimple.AssignStmt;
+import soot.jimple.ArithmeticConstant;
+import soot.jimple.Constant;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.Stack;
+
 
 /**
  * Created by olisa_000 on 11.06.17.
@@ -16,30 +17,37 @@ public class FormulaTree extends Tree{
     private SymbolNode root;
 
     public FormulaTree(Node<Value> root){
+        super(root);
         initTree(root);
     }
 
     private void initTree(Node<Value> oldRoot) {
-        Stack<MathNode> toVisitMath = new Stack<>();
-        Stack<Node> toVisit = new Stack<>();
-        Set<Node> visited = new HashSet<>();
-        toVisit.push(oldRoot);
-        root = new SymbolNode();
-        root.setSymbolRepresentation((String) root.getAnnotation());
-        toVisitMath.push(root);
-        while(!toVisit.empty()){
-            Node<Value> current = toVisit.pop();
-            Node<MathNode> currentMath = toVisitMath.pop();
-            if(visited.contains(current))
-                continue;
-            visited.add(current);
+        List<Node> ordered = iterateBfs();
+        List<MathNode> newTree = new ArrayList<>();
 
-            for (Node<Value> child : current.getChildren()){
-                toVisit.push(child);
-                //TODO
-                //MathNode newChild = new M;
-                //toVisitMath.push(newChild);
+        for (Node current: ordered) {
+            MathNode newNode = null;
+            if(current.hasAnnotation()) {
+                newNode = new SymbolNode();
+                ((SymbolNode)newNode).setSymbolRepresentation(current.getAnnotation().toString());
+                newTree.add(newNode);
+                continue;
             }
+            if(current.hasChildren()){
+                newNode = new NeutralNode();
+                newTree.add(newNode);
+                continue;
+            }
+            if(current.getValue() instanceof Local){
+                newNode = new ConstNode();
+                ((ConstNode)newNode).setConstName(((Local)current.getValue()).getName());
+                newTree.add(newNode);
+                continue;
+            }
+            newNode = new NumberNode();
+            Constant c = (Constant) newNode.getValue();
+            System.out.println(current.getValue());
+            newTree.add(newNode);
 
         }
     }

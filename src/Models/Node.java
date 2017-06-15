@@ -70,4 +70,8 @@ public class Node<T> {
     public boolean isLeaf() {
         return children.size() == 0;
     }
+
+    public T getValue() {
+        return value;
+    }
 }

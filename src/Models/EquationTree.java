@@ -22,6 +22,7 @@ public class EquationTree extends Tree{
 
 
     public EquationTree(Node root, ReachingDefinitions rd) {
+        super(root);
         this.root = root;
         this.rd = rd;
     }
