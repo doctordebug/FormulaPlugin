@@ -1,11 +1,9 @@
 package Models;
 
-import org.apache.xerces.xs.ShortList;
 import soot.Value;
 import soot.jimple.AssignStmt;
 import soot.jimple.BinopExpr;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Stack;
@@ -29,20 +27,20 @@ public class ValueTree {
         HashSet<Value> visited = new HashSet();
         Stack<Node<Value>> toVisit = new Stack<>();
         Node<Value> newRoot = new Node<>();
-        AssignStmt lastAssignmentStmtOfRoot = loopAssignStatements.stream().filter(x -> x.getLeftOp() == this.root.getValue()).reduce((a, b) -> b).get();
+        AssignStmt lastAssignmentStmtOfRoot = loopAssignStatements.stream().filter(x -> x.getLeftOp() == this.root.getNumberValue()).reduce((a, b) -> b).get();
         newRoot.setValue(lastAssignmentStmtOfRoot.getLeftOp());
         int maxIndex = loopAssignStatements.indexOf(lastAssignmentStmtOfRoot);
         toVisit.push(newRoot);
         while(!toVisit.empty()){
             Node<Value> current = toVisit.pop();
-            if(visited.contains(current.getValue()))
+            if(visited.contains(current.getNumberValue()))
                 continue;
-            visited.add(current.getValue());
+            visited.add(current.getNumberValue());
 
-            if(loopAssignStatements.subList(0, maxIndex + 1).stream().noneMatch(x -> x.getLeftOp() == current.getValue()))
+            if(loopAssignStatements.subList(0, maxIndex + 1).stream().noneMatch(x -> x.getLeftOp() == current.getNumberValue()))
                 continue;
             // last
-            AssignStmt newChild = loopAssignStatements.subList(0, maxIndex + 1).stream().filter(x -> x.getLeftOp() == current.getValue()).reduce((first, second) -> second).get();
+            AssignStmt newChild = loopAssignStatements.subList(0, maxIndex + 1).stream().filter(x -> x.getLeftOp() == current.getNumberValue()).reduce((first, second) -> second).get();
             /*insert*/
             if(newChild.getRightOp() instanceof BinopExpr){
                 BinopExpr assignment = (BinopExpr) newChild.getRightOp();
@@ -82,7 +80,7 @@ public class ValueTree {
             if(visited.contains(current))
                 continue;
             visited.add(current);
-            if(current.getValue() == from){
+            if(current.getNumberValue() == from){
                 start = current;
                 break;}
             toVisit.addAll(current.getChildren());
@@ -96,7 +94,7 @@ public class ValueTree {
             if(visited.contains(current))
                 continue;
             visited.add(current);
-            if(current.getValue() == to && current != start){
+            if(current.getNumberValue() == to && current != start){
                 return  true;
             }
             toVisit.addAll(current.getChildren());
@@ -109,18 +107,18 @@ public class ValueTree {
     public String toString() {
         String result = " VALUE-TREE:\n";
         String whiteSpace = " ";
-        result+= "root: " + root.getValue();
+        result+= "root: " + root.getNumberValue();
         Stack<Node> toVisit = new Stack<>();
         toVisit.push(root);
         result +="\n";
         while(!toVisit.empty()){
             Node<Value> current = toVisit.pop();
-            result += "Node "+current.getValue();
+            result += "Node "+current.getNumberValue();
             result += (current.getAnnotation() != null)? "\n  [Symbol: "+current.getAnnotation() +"]":"";
             result += "\nChildren ";
             for (Node<Value> child : current.getChildren()){
                 toVisit.push(child);
-                result += whiteSpace + child.getValue();
+                result += whiteSpace + child.getNumberValue();
             }
             result +="\n";
         }
@@ -128,4 +126,7 @@ public class ValueTree {
     }
 
 
+    public Node<Value> getRoot() {
+        return root;
+    }
 }

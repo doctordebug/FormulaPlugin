@@ -25,7 +25,7 @@ public class Node<T> {
         return children;
     }
 
-    public T getValue() {
+    public T getNumberValue() {
         return value;
     }
 
@@ -44,7 +44,7 @@ public class Node<T> {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(getValue()).append(":\n").append("-");
+        sb.append(getNumberValue()).append(":\n").append("-");
         sb.append("L__>");
         for (Node c : children)
             sb.append(c.toString()).append(',');
@@ -59,7 +59,15 @@ public class Node<T> {
         return annotation;
     }
 
+    public boolean hasAnnotation() {
+        return annotation != null;
+    }
+
     public void setAnnotation(Object annotation) {
         this.annotation = annotation;
+    }
+
+    public boolean isLeaf() {
+        return children.size() == 0;
     }
 }

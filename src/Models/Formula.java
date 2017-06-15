@@ -1,57 +1,58 @@
 package Models;
 
+import soot.Local;
 import soot.Value;
+import soot.jimple.AssignStmt;
+import soot.jimple.Constant;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Stack;
 
 /**
  * Created by olisa_000 on 19.05.17.
  */
 public class Formula {
-    private int initialValue = 0;
-    private int MaxIteratorValue = 0;
-    private int IteratorStartsAt = 0;
-    private EquationTree equation;
-    private String iteratorName;
+    public AccuMode type;
+    public Value accuVariable;
+    public Value iterator;
+    public Value maxIteratorValue;
+    public Value iteratorInitValue;
+    public String stringRepresentation;
 
-    //TODO: use SB
-    @Override
-    public String toString() {
-        return
-                initialValue+"\n" + MaxIteratorValue+"\n" + IteratorStartsAt+"\n"+equation.toReadableEquation()+"\n";
+    public void build(List<AssignStmt> loopAssignStatements) {
+        ValueTree tree = new ValueTree(accuVariable, loopAssignStatements);
+        System.err.println(tree);
+        Node<Value> root = tree.getRoot();
+        if (root.getChildren().size() != 1) return;
+        Node<Value> firstChild = root.getChildren().stream().findFirst().get();
+        findType(firstChild);
+
+        Set<Node<Value>> firstChildChildren = firstChild.getChildren();
+        if (firstChildChildren.size() != 2) return;
+        Node<Value> accuChild = firstChildChildren.stream().filter(x-> x.getAnnotation() == null).findFirst().get();
+        Node<Value> formulaChild = firstChildChildren.stream().filter(x-> x != accuChild).findFirst().get();
+        buildFormulaTree(formulaChild);
     }
 
-    public EquationTree getEquation() {
-        return equation;
+    //TODO use sb // debug
+    private void buildFormulaTree(Node<Value> root) {
+        new FormulaTree(root);
     }
 
-    public int getInitialValue() {
-        return initialValue;
-    }
-
-    public int getIteratorStartsAt() {
-        return IteratorStartsAt;
-    }
-
-    public int getMaxIteratorValue() {
-        return MaxIteratorValue;
-    }
-
-    public void setEquation(EquationTree equation) {
-        this.equation = equation;
-    }
-
-    public void setInitialValue(int initialValue) {
-        this.initialValue = initialValue;
-    }
-
-    public void setIteratorStartsAt(int iteratorStartsAt) {
-        IteratorStartsAt = iteratorStartsAt;
-    }
-
-    public void setMaxIteratorValue(int maxIteratorValue) {
-        MaxIteratorValue = maxIteratorValue;
-    }
-
-    public void setIteratorName(String iteratorName) {
-        this.iteratorName = iteratorName;
+    private void findType(Node<Value> firstChild) {
+        String typeString = ((String) firstChild.getAnnotation()).trim();
+        switch (typeString) {
+            case "*":
+                type = AccuMode.PROD;
+                break;
+            case "+":
+                type = AccuMode.SUM;
+                break;
+            default:
+                type = AccuMode.UNKNOWN;
+                break;
+        }
     }
 }

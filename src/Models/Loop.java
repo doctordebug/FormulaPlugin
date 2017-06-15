@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
  */
 public class Loop {
 
+    private boolean initilized;
     private JIfStmt condition;
 
     private Value indexVariable;
@@ -40,7 +41,19 @@ public class Loop {
         tempVariables = new HashSet<>();
         coIndexVariables = new HashSet<>();
         useless = new HashSet<>();
-        loopStatements = new HashSet<>();
+        loopStatements = new ArrayList<>();
+        initilized = false;
+    }
+
+    public void findEquations() {
+        if(!initilized) return;
+        for (Value accu: accumulationVariables) {
+            Formula f = new Formula();
+            f.accuVariable = accu;
+            f.iterator = indexVariable;
+            f.maxIteratorValue = loopEnd;
+            f.build(loopAssignStatements);
+        }
     }
 
     public static Loop buildLoop(soot.jimple.toolkits.annotation.logic.Loop loop, ReachingDefinitions rd, GuaranteedDefsAnalysis gds) {
@@ -61,7 +74,8 @@ public class Loop {
         Collection<Value> coIndex = findCoIndex(definedBeforeLoop, loop.getLoopStatements(), result.getIndexVariable());
         result.setCoIndexVariables(coIndex);
         //setTempVars
-        result.settempVariables(findTempVariables(definedBeforeLoop, loop.getLoopStatements()));
+        result.setTempVariables(findTempVariables(definedBeforeLoop, loop.getLoopStatements()));
+        result.setInitilized(true);
         return result;
     }
 
@@ -252,7 +266,12 @@ public class Loop {
     }
 
 
-    public void settempVariables(Collection<Value> tempVariables) {
+    public void setTempVariables(Collection<Value> tempVariables) {
         this.tempVariables = tempVariables;
+    }
+
+
+    public void setInitilized(boolean initilized) {
+        this.initilized = initilized;
     }
 }

@@ -1,11 +1,9 @@
 package Models;
 
 import Analysis.ReachingDefinitions;
-import soot.Local;
 import soot.Unit;
 import soot.Value;
 import soot.ValueBox;
-import soot.jimple.Constant;
 import soot.jimple.IntConstant;
 import soot.jimple.Stmt;
 import soot.jimple.internal.JimpleLocal;
@@ -17,12 +15,11 @@ import java.util.stream.Collectors;
 /**
  * Created by olisa_000 on 26.05.17.
  */
-public class EquationTree {
+public class EquationTree extends Tree{
 
     private final Node root;
     private final ReachingDefinitions rd;
 
-    private Set<Node> Nodes = new HashSet<>();
 
     public EquationTree(Node root, ReachingDefinitions rd) {
         this.root = root;
@@ -57,9 +54,9 @@ public class EquationTree {
         toVisit.addAll(root.getChildren());
         while(!toVisit.empty()){
             currentNode = toVisit.pop();
-            Value val = (Value) currentNode.getValue();
-            if(unitsToLabel.get(val) == null || visited.contains(currentNode.getValue())) continue;
-            visited.add(currentNode.getValue());
+            Value val = (Value) currentNode.getNumberValue();
+            if(unitsToLabel.get(val) == null || visited.contains(currentNode.getNumberValue())) continue;
+            visited.add(currentNode.getNumberValue());
             for (int label: unitsToLabel.get(val)) {
                 Unit newChild = labelsToUnit.get(label);
                 for(ValueBox u : newChild.getUseBoxes()){
@@ -88,10 +85,10 @@ public class EquationTree {
                   toVisit.addAll(currentNode.getChildren());
             }else{
                 /*leafs*/
-                if(currentNode.getValue() instanceof JimpleLocal)
-                    Equi += ((JimpleLocal)currentNode.getValue()).getName()+" OP ";
-                if(currentNode.getValue() instanceof IntConstant)
-                    Equi += ((IntConstant)currentNode.getValue()).value+".0 OP ";
+                if(currentNode.getNumberValue() instanceof JimpleLocal)
+                    Equi += ((JimpleLocal)currentNode.getNumberValue()).getName()+" OP ";
+                if(currentNode.getNumberValue() instanceof IntConstant)
+                    Equi += ((IntConstant)currentNode.getNumberValue()).value+".0 OP ";
            }
         }
         return "#>"+Equi;

@@ -27,6 +27,7 @@ public class ForAnalyser {
             for (Loop loop : loopNestTree) {
                 Models.Loop l = Models.Loop.buildLoop(loop,rd,gds);
                 System.out.println(l);
+                l.findEquations();
             }
         }
     }
