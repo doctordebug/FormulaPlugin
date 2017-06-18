@@ -5,13 +5,13 @@ package Models;
  */
 public class NumberNode extends MathNode {
 
-    private float numValue;
+    private double numValue;
 
-    public float getNumValue() {
+    public double getNumValue() {
         return numValue;
     }
 
-    public void setNumValue(float numberValue) {
+    public void setNumValue(double numberValue) {
         this.numValue = numberValue;
     }
 }

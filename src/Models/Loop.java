@@ -94,16 +94,17 @@ public class Loop {
         //lives before loop AND uses inside loop
         List<Value> possibleCoIndex =  valuesAssignedInLoop.stream().filter(x -> definedBeforeLoop.contains(x)).collect(Collectors.toList());
         //HasPath to index
-        List<ValueTree> varTrees = possibleCoIndex.stream().map(x -> new ValueTree(x, assignedInLoop)).collect(Collectors.toList());
+        List<ValueTree> varTrees = possibleCoIndex.stream().map(x -> ValueTree.LoadTree(x, assignedInLoop)).collect(Collectors.toList());
         HashSet<Value> hasPathToIndex = new HashSet<>();
         for(ValueTree t : varTrees){
             for(Value v : possibleCoIndex)
-                if (t.pathPathFromTo(v,indexVariable))
+                if (t.pathFromTo(v,indexVariable))
                     hasPathToIndex.add(v);
         }
         return hasPathToIndex;
     }
 
+    //TODO: BUGFIX!
     private static Collection<Value> findAccuVariables(List<Value> definedBeforeLoop, List<Stmt> loopStatements) {
         List<AssignStmt> assignedInLoop = findLoopAssignStatements(loopStatements);
         //defines itself new in loop
@@ -111,7 +112,7 @@ public class Loop {
         //lives before loop AND uses inside loop
         List<Value> possibleAccuVars =  valuesAssignedInLoop.stream().filter(x -> definedBeforeLoop.contains(x)).collect(Collectors.toList());
         //uses itself to get defines new
-        List<ValueTree> varTrees = possibleAccuVars.stream().map(x -> new ValueTree(x, assignedInLoop)).collect(Collectors.toList());
+        List<ValueTree> varTrees = possibleAccuVars.stream().map(x -> ValueTree.LoadTree(x, assignedInLoop)).collect(Collectors.toList());
         HashSet<Value> refersItself = new HashSet<>();
         for(ValueTree t : varTrees){
             for(Value v : possibleAccuVars)
@@ -120,12 +121,6 @@ public class Loop {
         }
         //defines itself new in loop AND lives before loop AND uses inside loop AND uses itself to get defined new
         return refersItself;
-    }
-
-    private static void buildTrees(Collection<Value> accumulationVariables, List<AssignStmt> loopAssignStatements) {
-        for(Value acc : accumulationVariables){
-            new ValueTree(acc, loopAssignStatements);
-        }
     }
 
 

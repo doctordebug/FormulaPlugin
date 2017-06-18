@@ -22,7 +22,7 @@ public class Formula {
     public String stringRepresentation;
 
     public void build(List<AssignStmt> loopAssignStatements) {
-        ValueTree tree = new ValueTree(accuVariable, loopAssignStatements);
+        ValueTree tree = ValueTree.LoadTree(accuVariable, loopAssignStatements);
         System.err.println(tree);
         Node<Value> root = tree.getRoot();
         if (root.getChildren().size() != 1) return;
@@ -36,7 +36,7 @@ public class Formula {
         buildFormulaTree(formulaChild);
     }
 
-    //TODO use sb // debug
+
     private void buildFormulaTree(Node<Value> root) {
         new FormulaTree(root);
     }

@@ -13,25 +13,25 @@ import java.util.Stack;
  * Created by olisa_000 on 09.06.17.
  */
 //TODO: build parentclass: tree
-public class ValueTree {
+public class ValueTree extends Tree{
 
-    private Node root;
+    //private Node root;
 
-    public ValueTree(Value acc, List<AssignStmt> loopAssignStatements){
-
-        root = new Node<>();
-        root.setValue(acc);
-        initTree(loopAssignStatements);
+    private ValueTree(Node root) {
+        super(root);
+    }
 
 
+    public static ValueTree LoadTree(Value x, List<AssignStmt> loopAssignStatements) {
+        return new ValueTree(initTree(x, loopAssignStatements));
     }
 
     //TODO Refactor
-    private void initTree(List<AssignStmt> loopAssignStatements) {
+    private static Node initTree(Value rootValue, List<AssignStmt> loopAssignStatements) {
         HashSet<Value> visited = new HashSet();
         Stack<Node<Value>> toVisit = new Stack<>();
         Node<Value> newRoot = new Node<>();
-        AssignStmt lastAssignmentStmtOfRoot = loopAssignStatements.stream().filter(x -> x.getLeftOp() == root.getNumberValue()).reduce((a, b) -> b).get();
+        AssignStmt lastAssignmentStmtOfRoot = loopAssignStatements.stream().filter(x -> x.getLeftOp() == rootValue).reduce((a, b) -> b).get();
         newRoot.setValue(lastAssignmentStmtOfRoot.getLeftOp());
         int maxIndex = loopAssignStatements.indexOf(lastAssignmentStmtOfRoot);
         toVisit.push(newRoot);
@@ -67,18 +67,18 @@ public class ValueTree {
                 toVisit.push(n1);
             }
         }
-        root = (newRoot);
+        return newRoot;
 
     }
 
     public boolean refersItself(Value v){
-        return pathPathFromTo(v,v);
+        return pathFromTo(v,v);
     }
 
-    public boolean pathPathFromTo(Value from, Value to) {
+    public boolean pathFromTo(Value from, Value to) {
         Stack<Node> toVisit = new Stack<>();
         HashSet<Node> visited = new HashSet<>();
-        toVisit.push(root);
+        toVisit.push(getRoot());
         Node<Value> start = null;
         while(!toVisit.empty()){
             Node<Value> current = toVisit.pop();
@@ -112,9 +112,9 @@ public class ValueTree {
     public String toString() {
         String result = " VALUE-TREE:\n";
         String whiteSpace = " ";
-        result+= "root: " + root.getNumberValue();
+        result+= "root: " + getRoot().getNumberValue();
         Stack<Node> toVisit = new Stack<>();
-        toVisit.push(root);
+        toVisit.push(getRoot());
         result +="\n";
         while(!toVisit.empty()){
             Node<Value> current = toVisit.pop();
@@ -130,9 +130,5 @@ public class ValueTree {
         return result;
     }
 
-
-    public Node getRoot() {
-        return root;
-    }
 }
 

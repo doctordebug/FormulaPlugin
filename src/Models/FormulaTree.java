@@ -2,8 +2,7 @@ package Models;
 
 import soot.Local;
 import soot.Value;
-import soot.jimple.ArithmeticConstant;
-import soot.jimple.Constant;
+import soot.jimple.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,10 +17,10 @@ public class FormulaTree extends Tree{
 
     public FormulaTree(Node<Value> root){
         super(root);
-        initTree(root);
+        initTree();
     }
 
-    private void initTree(Node<Value> oldRoot) {
+    private void initTree() {
         List<Node> ordered = iterateBfs();
         List<MathNode> newTree = new ArrayList<>();
 
@@ -46,9 +45,16 @@ public class FormulaTree extends Tree{
             }
             newNode = new NumberNode();
             Constant c = (Constant) newNode.getValue();
-            System.out.println(current.getValue());
+            if(c instanceof IntConstant){
+                ((NumberNode)newNode).setNumValue(((IntConstant) c).value);
+            }
+            if(c instanceof FloatConstant){
+                ((NumberNode)newNode).setNumValue(((FloatConstant) c).value);
+            }
+            if(c instanceof DoubleConstant){
+                ((NumberNode)newNode).setNumValue(((DoubleConstant) c).value);
+            }
             newTree.add(newNode);
-
         }
     }
 }
