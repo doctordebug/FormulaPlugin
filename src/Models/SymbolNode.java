@@ -14,4 +14,27 @@ public class SymbolNode extends MathNode{
     public void setSymbolRepresentation(String symbolRepresentation) {
         SymbolRepresentation = symbolRepresentation;
     }
+    @Override
+    public StringBuffer buildNodeRepresentation(StringBuffer sb) {
+        StringBuffer result = new StringBuffer();
+        if(getLeftChild() != null)
+            result.append(getLeftChild().buildNodeRepresentation(sb));
+        result.append(SymbolRepresentation);
+        if(getRightChild() != null)
+            result.append(getRightChild().buildNodeRepresentation(sb));
+
+        return result;
+    }
+
+    @Override
+    public StringBuffer buildLatexNodeRepresentation(StringBuffer sb) {
+        StringBuffer result = new StringBuffer();
+        if(getLeftChild() != null)
+            result.append(getLeftChild().buildNodeRepresentation(sb));
+        result.append(SymbolRepresentation);
+        if(getRightChild() != null)
+            result.append(getRightChild().buildNodeRepresentation(sb));
+
+        return result;
+    }
 }

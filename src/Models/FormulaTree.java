@@ -13,8 +13,6 @@ import java.util.List;
  */
 public class FormulaTree extends Tree{
 
-    private SymbolNode root;
-
     public FormulaTree(Node<Value> root){
         super(root);
         initTree();
@@ -25,7 +23,7 @@ public class FormulaTree extends Tree{
         List<MathNode> newTree = new ArrayList<>();
 
         for (Node current: ordered) {
-            MathNode newNode = null;
+            MathNode newNode;
             if(current.hasAnnotation()) {
                 newNode = new SymbolNode();
                 ((SymbolNode)newNode).setSymbolRepresentation(current.getAnnotation().toString());
@@ -44,7 +42,7 @@ public class FormulaTree extends Tree{
                 continue;
             }
             newNode = new NumberNode();
-            Constant c = (Constant) newNode.getValue();
+            Constant c = (Constant) current.getValue();
             if(c instanceof IntConstant){
                 ((NumberNode)newNode).setNumValue(((IntConstant) c).value);
             }
@@ -54,7 +52,28 @@ public class FormulaTree extends Tree{
             if(c instanceof DoubleConstant){
                 ((NumberNode)newNode).setNumValue(((DoubleConstant) c).value);
             }
+            System.err.println("Class:"+ c.getClass());
             newTree.add(newNode);
+        }
+        assignParents(ordered, newTree);
+        setRoot(newTree.get(0));
+    }
+
+    private void assignParents(List<Node> ordered, List<MathNode> newTree) {
+        for(int index = 0; index < ordered.size(); ++index){
+            Node current = ordered.get(index);
+            if(current.hasChildren()){
+                List children = new ArrayList(2);
+                children.addAll(current.getChildren());
+                if(children.size() > 0){
+                    int newLeftChildIndex = ordered.indexOf(children.get(0));
+                    newTree.get(index).setLeftChild(newTree.get(newLeftChildIndex));
+                }
+                if(children.size() > 1){
+                    int newRightChildIndex = ordered.indexOf(children.get(1));
+                    newTree.get(index).setRightChild(newTree.get(newRightChildIndex));
+                }
+            }
         }
     }
 }

@@ -5,5 +5,6 @@ package Models;
  */
 public enum AccuMode {
     SUM,
-    UNKNOWN, PROD
+    PROD,
+    UNKNOWN
 }

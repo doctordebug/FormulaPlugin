@@ -14,4 +14,14 @@ public class NumberNode extends MathNode {
     public void setNumValue(double numberValue) {
         this.numValue = numberValue;
     }
+
+    @Override
+    public StringBuffer buildNodeRepresentation(StringBuffer sb) {
+        return new StringBuffer(numValue+"");
+    }
+
+    @Override
+    public StringBuffer buildLatexNodeRepresentation(StringBuffer sb) {
+        return new StringBuffer(numValue+"");
+    }
 }

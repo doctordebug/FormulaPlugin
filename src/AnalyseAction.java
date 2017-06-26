@@ -3,22 +3,27 @@ import Utils.SootEnviroment;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.impl.LoadTextUtil;
+import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootResolver;
 import soot.util.Chain;
+import ui.ResultPanel;
 
 import java.util.Stack;
 
 /**
  * Created by olisa_000 on 18.05.17.
  */
-public class AnalyseAction extends AnAction {
+public class AnalyseAction extends AnAction implements Condition{
 
+
+    private PsiFile astFile;
 
     public AnalyseAction(){
         super("Analyse Action");
@@ -39,17 +44,22 @@ public class AnalyseAction extends AnAction {
 
     private void analyse(AnActionEvent e) {
         PsiFile ast = e.getData(LangDataKeys.PSI_FILE);
-        ClassVisitor visitor = new ClassVisitor();
-        if (ast == null) throw new AssertionError("ast is null try again");
-        ast.accept(visitor);
-        Stack<String> stack = visitor.getClassNames();
+
         SootEnviroment.activateConstantPropagation();
 
-        while(!stack.empty()){
-            SootClass c = Scene.v().loadClassAndSupport(stack.pop());
-            Scene.v().loadNecessaryClasses();
-            new ForAnalyser(c).analyse();
-        }
+
+        VirtualFile vFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
+        String fileName = vFile != null ? vFile.getName() : null;
+
+        SootClass c = Scene.v().loadClassAndSupport(fileName.substring(0,fileName.indexOf('.')));
+        Scene.v().loadNecessaryClasses();
+        new ForAnalyser(c).analyse();
+
         SootEnviroment.disableConstantPropagation();
+    }
+
+    @Override
+    public boolean value(Object o) {
+        return true;
     }
 }

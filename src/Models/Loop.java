@@ -124,35 +124,7 @@ public class Loop {
     }
 
 
-    private static boolean pathToIndexVars(Value indexVariable, Collection<AssignStmt> loopAssignStatements) {
-        List<Value> leftOperations = loopAssignStatements.stream().map(x -> x.getLeftOp() ).collect(Collectors.toList());
-        Stack<Value> critical = new Stack();
 
-        Stack result = new Stack<Value>();
-        critical.addAll(leftOperations);
-
-        while (!critical.empty()){
-            Value current = critical.pop();
-            /*for each: has Path to index?*/
-            if(current == indexVariable) return true;
-            List<Value> allRightSideVarsOfCurrent =
-                    loopAssignStatements
-                            .stream()
-                                .filter(x -> x.getLeftOp() == current).
-                                    map(x -> x.getRightOp().getUseBoxes()).
-                                        map(
-                            x -> x.stream().
-                                    map(y -> y.getValue()).
-                                    collect(Collectors.toList())).
-                    flatMap(List::stream).
-                    collect(Collectors.toList());
-            for (Value possiblePathVar : allRightSideVarsOfCurrent){
-
-            }
-        }
-
-        return false;
-    }
 
     private static List<AssignStmt> findLoopAssignStatements(List<Stmt> statements) {
         return statements.
@@ -160,14 +132,6 @@ public class Loop {
                 filter(x -> x instanceof AssignStmt).
                 map(x -> (AssignStmt) x).
                 collect(Collectors.toList());
-    }
-
-    private static List<Value> findAccuVariables(Loop result, List<Unit> definedBeforeLoop, Collection<AssignStmt> assignStatements) {
-        return assignStatements.
-                stream().
-                    map(x -> x.getLeftOp()).
-                        filter(x -> definedBeforeLoop.contains(x) && x != result.getIndexVariable()).
-                            collect(Collectors.toList());
     }
 
     private static Value findIndexVariable(JIfStmt cond) {

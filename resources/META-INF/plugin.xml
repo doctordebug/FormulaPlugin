@@ -26,7 +26,9 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
+    <toolWindow id="FormulaPluginResultPanel" anchor="right" factoryClass="ui.ResultPanel" icon="/icons/sigma.png"  />
   </extensions>
+
 
   <actions>
     <action id="MainAction" class="AnalyseAction" text="Main Action" description="Main Action description">

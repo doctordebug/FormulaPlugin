@@ -13,4 +13,14 @@ public class ConstNode extends MathNode{
     public void setConstName(String constName) {
         this.constName = constName;
     }
+
+    @Override
+    public StringBuffer buildNodeRepresentation(StringBuffer sb) {
+        return new StringBuffer(getConstName());
+    }
+
+    @Override
+    public StringBuffer buildLatexNodeRepresentation(StringBuffer sb) {
+        return new StringBuffer(getConstName());
+    }
 }

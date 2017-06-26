@@ -3,7 +3,7 @@ package Models;
 /**
  * Created by olisa_000 on 11.06.17.
  */
-public class MathNode extends Node {
+public class MathNode extends Node  implements Visitable{
 
     private MathNode leftChild;
 
@@ -24,4 +24,13 @@ public class MathNode extends Node {
     public void setRightChild(MathNode rightChild) {
         this.rightChild = rightChild;
     }
+
+    public StringBuffer buildLatexNodeRepresentation(StringBuffer sb) {
+        return sb;
+    }
+
+    public StringBuffer buildNodeRepresentation(StringBuffer sb) {
+        return sb;
+    }
+
 }

@@ -20,10 +20,10 @@ public class Formula {
     public Value maxIteratorValue;
     public Value iteratorInitValue;
     public String stringRepresentation;
+    private FormulaTree formulaTree;
 
     public void build(List<AssignStmt> loopAssignStatements) {
         ValueTree tree = ValueTree.LoadTree(accuVariable, loopAssignStatements);
-        System.err.println(tree);
         Node<Value> root = tree.getRoot();
         if (root.getChildren().size() != 1) return;
         Node<Value> firstChild = root.getChildren().stream().findFirst().get();
@@ -38,8 +38,22 @@ public class Formula {
 
 
     private void buildFormulaTree(Node<Value> root) {
-        new FormulaTree(root);
+        formulaTree = new FormulaTree(root);
+        stringRepresentation = buildStringRepresentation(formulaTree);
+        System.err.println(stringRepresentation);
     }
+
+    private String buildStringRepresentation(FormulaTree formulaTree) {
+        MathNode root = (MathNode) formulaTree.getRoot();
+        if(!(root instanceof SymbolNode)){
+            return root.getNumberValue()+"";
+        }
+        String initString = root.buildNodeRepresentation(new StringBuffer()).toString();
+
+        return initString;
+    }
+
+
 
     private void findType(Node<Value> firstChild) {
         String typeString = ((String) firstChild.getAnnotation()).trim();
