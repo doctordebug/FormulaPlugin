@@ -1,5 +1,6 @@
 package Models;
 
+import org.scilab.forge.jlatexmath.TeXFormula;
 import soot.Local;
 import soot.Value;
 import soot.jimple.AssignStmt;
@@ -20,6 +21,7 @@ public class Formula {
     public Value maxIteratorValue;
     public Value iteratorInitValue;
     public String stringRepresentation;
+    public String latextRepresentation;
     private FormulaTree formulaTree;
 
     public void build(List<AssignStmt> loopAssignStatements) {
@@ -40,7 +42,6 @@ public class Formula {
     private void buildFormulaTree(Node<Value> root) {
         formulaTree = new FormulaTree(root);
         stringRepresentation = buildStringRepresentation(formulaTree);
-        System.err.println(stringRepresentation);
     }
 
     private String buildStringRepresentation(FormulaTree formulaTree) {
@@ -49,10 +50,23 @@ public class Formula {
             return root.getNumberValue()+"";
         }
         String initString = root.buildNodeRepresentation(new StringBuffer()).toString();
-
+        buildLatexRepresentation(initString);
         return initString;
     }
 
+    private void buildLatexRepresentation(String initString) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(accuVariable)
+                .append(" = ")
+                    .append("\\sum_{")
+                        .append(iterator.toString())
+                            .append("=0}^{")
+                                .append(maxIteratorValue.toString())
+                                    .append("}(")
+                                        .append(initString)
+                                            .append(")");
+        latextRepresentation = sb.toString();
+    }
 
 
     private void findType(Node<Value> firstChild) {
@@ -68,5 +82,14 @@ public class Formula {
                 type = AccuMode.UNKNOWN;
                 break;
         }
+    }
+
+    public String getStringRepresentation() {
+        return stringRepresentation;
+    }
+
+    public String getLatextRepresentation() {
+
+        return latextRepresentation;
     }
 }

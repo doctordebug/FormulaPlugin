@@ -3,7 +3,6 @@ package Models;
 import Analysis.GuaranteedDefsAnalysis;
 import Analysis.ReachingDefinitions;
 import org.jetbrains.annotations.NotNull;
-import soot.Unit;
 import soot.Value;
 import soot.jimple.AssignStmt;
 import soot.jimple.Stmt;
@@ -45,15 +44,18 @@ public class Loop {
         initilized = false;
     }
 
-    public void findEquations() {
-        if(!initilized) return;
+    public List<Formula> findEquations() {
+        List<Formula> result = new ArrayList<>();
+        if(!initilized) return result;
         for (Value accu: accumulationVariables) {
             Formula f = new Formula();
             f.accuVariable = accu;
             f.iterator = indexVariable;
             f.maxIteratorValue = loopEnd;
             f.build(loopAssignStatements);
+            result.add(f);
         }
+        return result;
     }
 
     public static Loop buildLoop(soot.jimple.toolkits.annotation.logic.Loop loop, ReachingDefinitions rd, GuaranteedDefsAnalysis gds) {
@@ -232,5 +234,13 @@ public class Loop {
 
     public void setInitilized(boolean initilized) {
         this.initilized = initilized;
+    }
+
+    public JIfStmt getCondition() {
+        return condition;
+    }
+
+    public Value getLoopEnd() {
+        return loopEnd;
     }
 }
